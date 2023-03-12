@@ -1,32 +1,30 @@
-import {useState } from "react";
+import { useState } from "react";
+import { useSelector, useDispatch } from 'react-redux';
+import { addContacts } from 'redux/contactsSlice';
+import { getContacts } from 'redux/selectors';
+import { nanoid } from 'nanoid';
 import { FormContact, FormLabel, FormInput, AddBtn } from './Form.styled';
 
-export const Form = ({onSubmit}) => {
+export  function  Form()  {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-
-  const handleChange = evt => {
-    const { name, value } = evt.target;
-  
-    switch (name) {
-        case 'name':
-            setName(value);
-            break;
-
-        case 'number':
-            setNumber(value);
-            break;
-
-    default:
-        return;
-    }
-  };
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
   const handleSubmit = evt => {
     evt.preventDefault();
+
+    contacts.some(contact => contact.name === name)
+      ? alert(`${name} is already in contacts`)
+      : dispatch(
+          addContacts({
+            id: nanoid(),
+            name: name,
+            number: number,
+          })
+        );
     
-    onSubmit(name, number);
       setName('');
       setNumber('');
   };
@@ -37,8 +35,7 @@ export const Form = ({onSubmit}) => {
           Name
           <FormInput
             value={name}
-            // id={nanoidIdName}
-            onChange={handleChange}
+            onChange={e => setName(e.currentTarget.value)}
             type="text"
             name="name"
             pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
@@ -50,8 +47,7 @@ export const Form = ({onSubmit}) => {
           Number
           <FormInput
             value={number}
-            // id={nanoidIdNumber}
-            onChange={handleChange}
+            onChange={e => setNumber(e.currentTarget.value)}
             type="tel"
             name="number"
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
